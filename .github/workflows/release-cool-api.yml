@@ -1,4 +1,4 @@
-name: Node.js Package
+name: Release cool-api package
 
 on:
   push:
@@ -23,19 +23,50 @@ jobs:
       - run: npm ci
       - run: npm test
 
-  publish-gpr:
+  bump-version:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
+    outputs:
+      skip_bump: ${{ steps.check_changes.outputs.skip_bump }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: https://npm.pkg.github.com/
-      - run: npm ci
-      - run: npm publish
+          node-version: '20.x'
+      # Check if there are changes in cool-api directory
+      - name: Check for changes in cool-api
+        id: check_changes
+        run: |
+          if git diff --quiet HEAD^ HEAD -- cool-api; then
+            echo "No changes in cool-api directory. Skipping version bump."
+            echo "skip_bump=true" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in cool-api directory. Proceeding with version bump."
+            echo "skip_bump=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Bump version
+        if: steps.check_changes.outputs.skip_bump == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm version patch -m "ci: bump version to %s"
+      - name: Stage and commit changes
+        if: steps.check_changes.outputs.skip_bump == 'false'
+        run: |
+          git add package.json
+          git commit -m "ci: commit version bump"
+      - name: Push changes
+        if: steps.check_changes.outputs.skip_bump == 'false'
+        run: git push --follow-tags
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Trigger publish-cool-api workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: publish-cool-api
+          client-payload: |
+            {
+              "skip_bump": "${{ steps.check_changes.outputs.skip_bump }}"
+            }
+
