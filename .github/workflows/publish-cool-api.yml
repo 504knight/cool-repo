@@ -28,7 +28,6 @@ jobs:
       - name: Debug version
         run: cat package.json
       - name: Publish package
-        if: github.event.client_payload.skip_bump == 'false'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

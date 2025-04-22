@@ -62,11 +62,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Trigger publish-cool-api workflow
+        if: steps.check_changes.outputs.skip_bump == 'false'
         uses: peter-evans/repository-dispatch@v3
         with:
           event-type: publish-cool-api
-          client-payload: |
-            {
-              "skip_bump": "${{ steps.check_changes.outputs.skip_bump }}"
-            }
-
