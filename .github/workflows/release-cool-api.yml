@@ -37,7 +37,7 @@ jobs:
       - name: Check for changes in cool-api
         id: check_changes
         run: |
-          if git diff --quiet --exit-code $GITHUB_BASE_REF -- cool-api; then
+          if git diff --quiet HEAD^ HEAD -- cool-api; then
             echo "No changes in cool-api directory. Skipping version bump."
             echo "skip_bump=true" >> $GITHUB_OUTPUT
           else
