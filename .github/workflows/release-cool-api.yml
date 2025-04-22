@@ -17,8 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -32,6 +30,8 @@ jobs:
       skip_bump: ${{ steps.check_changes.outputs.skip_bump }}
     steps:
       - uses: actions/checkout@v4
+        with:
+            fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
