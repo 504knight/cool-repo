@@ -1,6 +1,6 @@
 {
   "name": "@504knight/cool-repo",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "main": "index.js",
   "scripts": {
     "test": "exit 0"
